@@ -1,0 +1,47 @@
+﻿<Window x:Class="ProcDumpWrapper.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ProcDumpWrapper"
+        mc:Ignorable="d"
+        Title="ProcDump GUI" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="7*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Grid.Column="0">
+        <ListBox ItemsSource="{Binding Options}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                        <Grid Loaded="FrameworkElement_OnLoaded">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="30" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                        <CheckBox Grid.Column="0" IsChecked="{Binding Enabled, Mode=TwoWay}" IsEnabled="{Binding Available}" />
+                        <StackPanel Grid.Column="1" Orientation="Vertical" >
+                                <TextBlock Text="{Binding Name}" IsEnabled="{Binding Available}"
+                                           FontWeight="Bold" 
+                                            ToolTip="{Binding Description}"                                           
+                                           ToolTipService.InitialShowDelay="1"  
+                                           ToolTipService.HasDropShadow="True"
+                                           ToolTipService.Placement ="Mouse">
+                                </TextBlock>
+                                <!-- custom options will be injected here -->
+                        </StackPanel>
+                </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        </Grid>
+        <Button Grid.Row="1" Grid.Column="0" Content="Go!" Click="RunProcDump" />
+        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Output}" />
+        <Button Grid.Row="1" Grid.Column="1" Content="Clear" Click="ClearOutput"></Button>
+    </Grid>
+</Window>
