@@ -28,7 +28,6 @@ namespace ProcDumpWrapper
             typeof(FilterExcludeExceptionsOption),
             typeof(FilterIncludeExceptionsOption),
             typeof(HungWindowOption),
-            typeof(InstallOption),
             typeof(InvokeMinidumpCallbackOfDllOption),
             typeof(LaunchProcessOption),
             typeof(LowerMemoryCommitThresholdOption),

@@ -45,7 +45,7 @@ namespace ProcDumpWrapper
             DataContext = this;
 
             var assembly = typeof(Option).Assembly;
-            var types = assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(Option)));
+            var types = assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(Option))).OrderBy(t => t.FullName);
             Options = types.Select(t => (Option)Activator.CreateInstance(t)).ToList();
 
             foreach (var option in Options)
