@@ -55,6 +55,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\BoolToColorConverter.cs" />
     <Compile Include="Options\CallbackDumpOption.cs" />
     <Compile Include="Options\CloneOption.cs" />
     <Compile Include="Options\CompactedFullDumpOption.cs" />

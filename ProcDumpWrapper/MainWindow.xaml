@@ -4,38 +4,62 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ProcDumpWrapper"
+        xmlns:converters="clr-namespace:ProcDumpWrapper.Converters"
         mc:Ignorable="d"
         Title="ProcDump GUI" Height="450" Width="800">
     <Window.Resources>
-       
 
-            <Style TargetType="Border" x:Key="HeaderBorderStyle" >
-                <Style.Resources>
-                    <LinearGradientBrush x:Key="BackBrush" StartPoint="0.5,0" EndPoint="0.5,1">
-                        <GradientStop Color="#24479B" Offset="0.1" />
-                        <GradientStop Color="#476899" Offset="0.9" />
-                    </LinearGradientBrush>
-                </Style.Resources>
-                <Setter Property="Background" Value="{StaticResource BackBrush}"/>
-            </Style>
+        <converters:BoolToColorConverter x:Key="BoolToColorConverter" FalseBrush="DarkSlateGray" TrueBrush="Green" />
 
-            <DataTemplate x:Key="titleText">
+        <Style x:Key="FlashingStyle" TargetType="{x:Type TextBlock}">
+            <Style.Resources>
+                <Storyboard x:Key="FlashingAnimation">
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" AutoReverse="True" Duration="0:0:1" RepeatBehavior="Forever" />
+                </Storyboard>
+            </Style.Resources>
+
+            <Setter Property="Visibility" Value="Hidden" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding CanCancel}" Value="true">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard Name="Flash" Storyboard="{StaticResource FlashingAnimation}" />
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <StopStoryboard BeginStoryboardName="Flash" />
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="Border" x:Key="HeaderBorderStyle" >
+            <Style.Resources>
+                <LinearGradientBrush x:Key="BackBrush" StartPoint="0.5,0" EndPoint="0.5,1">
+                    <GradientStop Color="#24479B" Offset="0.1" />
+                    <GradientStop Color="#476899" Offset="0.9" />
+                </LinearGradientBrush>
+            </Style.Resources>
+            <Setter Property="Background" Value="{StaticResource BackBrush}"/>
+        </Style>
+
+        <DataTemplate x:Key="HeaderText">
             <Border Style="{StaticResource HeaderBorderStyle}" Height="24">
-                    <TextBlock Text="{Binding}" 
-                               Margin="4 0"
-                               Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Expander}}, Path=ActualWidth}"
-                               VerticalAlignment="Center"
-                               Foreground="White"
-                               FontSize="13" 
-                               FontWeight="Bold"/>
-                </Border>
-            </DataTemplate>
+                <TextBlock Text="{Binding}" 
+                           Margin="4 0"
+                           Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Expander}}, Path=ActualWidth}"
+                           VerticalAlignment="Center"
+                           Foreground="White"
+                           FontSize="13" 
+                           FontWeight="Bold"/>
+            </Border>
+        </DataTemplate>
 
-            <Style TargetType="{x:Type Expander}">
-                <Setter Property="HeaderTemplate" Value="{StaticResource titleText}"/>
-            </Style>
+        <Style TargetType="{x:Type Expander}">
+            <Setter Property="HeaderTemplate" Value="{StaticResource HeaderText}"/>
+        </Style>
 
     </Window.Resources>
+
     <Grid>
         
         <Grid.ColumnDefinitions>
@@ -51,47 +75,47 @@
         <!-- Options pane -->
         <Grid Grid.Row="0" Grid.Column="0">
             <ScrollViewer>
-            <ItemsControl ItemsSource="{Binding GroupedOptions}" Name="AllOptionsListBox">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Expander Header="{Binding Key.DisplayName}">
-                            <Border BorderThickness="1">
-                                <Grid  Name="GroupGrid" Margin="30,0,10,10">
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition />
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Grid.Row="0" Text="{Binding Key.DisplayName}" Name="GroupedOptionTitle" FontWeight="Bold" />
-                                    <ItemsControl Grid.Row="1" ItemsSource="{Binding Value}" Name="GroupedOptionListBox">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid Loaded="FrameworkElement_OnLoaded" Name="IndividualOptionGrid">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="30" />
-                                                        <ColumnDefinition />
-                                                    </Grid.ColumnDefinitions>
-                                                    <CheckBox Grid.Column="0" IsChecked="{Binding Enabled, Mode=TwoWay}" IsEnabled="{Binding Available}" />
-                                                    <StackPanel Grid.Column="1" Orientation="Vertical" Name="IndividualOptionPropertyPanel" >
-                                                        <TextBlock Text="{Binding Name}" 
+                <ItemsControl ItemsSource="{Binding GroupedOptions}" Name="AllOptionsListBox">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Expander Header="{Binding Key.DisplayName}">
+                                <Border BorderThickness="1">
+                                    <Grid  Name="GroupGrid" Margin="30,0,10,10">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition />
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" Text="{Binding Key.DisplayName}" Name="GroupedOptionTitle" FontWeight="Bold" />
+                                        <ItemsControl Grid.Row="1" ItemsSource="{Binding Value}" Name="GroupedOptionListBox">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid Loaded="FrameworkElement_OnLoaded" Name="IndividualOptionGrid">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="30" />
+                                                            <ColumnDefinition />
+                                                        </Grid.ColumnDefinitions>
+                                                        <CheckBox Grid.Column="0" IsChecked="{Binding Enabled, Mode=TwoWay}" IsEnabled="{Binding Available}" />
+                                                        <StackPanel Grid.Column="1" Orientation="Vertical" Name="IndividualOptionPropertyPanel" >
+                                                            <TextBlock Text="{Binding Name}" 
                                                        IsEnabled="{Binding Available}"
                                                        FontWeight="Bold" 
                                                        ToolTip="{Binding Description}"                                           
                                                        ToolTipService.InitialShowDelay="1"  
                                                        ToolTipService.HasDropShadow="True"
                                                        ToolTipService.Placement ="Mouse">
-                                                        </TextBlock>
-                                                        <!-- custom options will be injected here -->
-                                                    </StackPanel>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </Grid>
-                            </Border>
-                        </Expander>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                                                            </TextBlock>
+                                                            <!-- custom options will be injected here -->
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Grid>
+                                </Border>
+                            </Expander>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
             </ScrollViewer>
         </Grid>
         <Button Grid.Row="1" Grid.Column="0" Content="Go!" Click="RunProcDump" />
@@ -106,8 +130,14 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Orientation="Horizontal">
-                <TextBlock>Current Command Line: </TextBlock>
-                <TextBlock Margin="5,0,0,0" Text="{Binding Path = CurrentCommandLine, Mode=OneWay}" FontWeight="Bold"/>
+                <TextBlock Margin="5,0,0,0">Current Command Line: </TextBlock>
+                <TextBlock 
+                    Margin="5,0,0,0" 
+                    Text="{Binding Path = CurrentCommandLine, Mode=OneWay}" 
+                    FontWeight="Bold" 
+                    Foreground="{Binding CanCancel, Converter={StaticResource BoolToColorConverter}}" />
+                <TextBlock Margin="20,0,0,0" Style="{StaticResource FlashingStyle}" Foreground="DarkGreen" FontWeight="Bold" FontSize="13">Running</TextBlock>
+
             </StackPanel>
             <TextBox Grid.Row="1" Text="{Binding Output}" 
                      local:TextBoxScrollBehavior.ScrollOnTextChanged="True"
