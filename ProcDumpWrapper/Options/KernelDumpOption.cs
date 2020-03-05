@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using ProcDumpWrapper.Options;
 
 namespace ProcDumpWrapper
 {
@@ -14,6 +15,8 @@ namespace ProcDumpWrapper
         {
             return "-mk";
         }
+
+        public override Type GroupType => typeof(DumpTypeGroup);
 
         public override List<Type> ConflictingTypes => new List<Type>()
         {

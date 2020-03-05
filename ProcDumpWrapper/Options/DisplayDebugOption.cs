@@ -7,6 +7,12 @@ namespace ProcDumpWrapper
         public override int Order => 100;
         public override string Name => "Display Debug Logging";
         public override string Description => "Display the debug logging of the process.";
+
+        public DisplayDebugOption()
+        {
+            Enabled = true;
+        }
+
         public override string GetArguments()
         {
             return "-l";

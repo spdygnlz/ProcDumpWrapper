@@ -8,7 +8,20 @@ namespace ProcDumpWrapper
         public override string Name => "Launch Process with Args";
         public override string Description => "Launch the specified image with optional arguments. If it is a Store Application or Package, ProcDump will start on the next activation (only).";
 
-        public string Arguments { get; set; }
+        private string _arguments;
+
+        public string Arguments
+        {
+            get => _arguments;
+            set
+            {
+                if (_arguments != value)
+                {
+                    _arguments = value;
+                    OnOptionsChanged(_arguments);
+                }
+            }
+        }
 
 
         public override string GetArguments()

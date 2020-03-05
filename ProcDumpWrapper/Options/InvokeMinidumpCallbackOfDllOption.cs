@@ -8,7 +8,20 @@ namespace ProcDumpWrapper
         public override string Name => "Invoke Minidump Callback";
         public override string Description => "Invoke the minidump callback routine named MiniDumpCallbackRoutine of the specified DLL.";
 
-        public string CallbackDll { get; set; }
+        private string _callbackDll;
+
+        public string CallbackDll
+        {
+            get => _callbackDll;
+            set
+            {
+                if (_callbackDll != value)
+                {
+                    _callbackDll = value;
+                    OnOptionsChanged(_callbackDll);
+                }
+            }
+        }
 
         public override string GetArguments()
         {

@@ -64,6 +64,7 @@
     <Compile Include="Options\FilterExcludeExceptionsOption.cs" />
     <Compile Include="Options\FilterIncludeExceptionsOption.cs" />
     <Compile Include="Options\FullDumpOption.cs" />
+    <Compile Include="Options\Group.cs" />
     <Compile Include="Options\HungWindowOption.cs" />
     <Compile Include="Options\InstallOption.cs" />
     <Compile Include="Options\KernelDumpOption.cs" />
@@ -81,6 +82,7 @@
     <Compile Include="Options\UnhandledExceptionOption.cs" />
     <Compile Include="Options\UninstallOption.cs" />
     <Compile Include="Options\UpperMemoryCommitThresholdOption.cs" />
+    <Compile Include="TextBoxScrollBehavior.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

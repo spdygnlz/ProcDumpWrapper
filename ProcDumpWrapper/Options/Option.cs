@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using ProcDumpWrapper.Options;
 
 namespace ProcDumpWrapper
 {
@@ -39,6 +40,8 @@ namespace ProcDumpWrapper
         public abstract string Name { get; }
         public abstract string Description { get; }
 
+        public virtual Type GroupType => typeof(MiscGroup);
+
         public virtual List<Type> ConflictingTypes { get; } = new List<Type>(){typeof(UninstallOption)};
 
         public ObservableCollection<Type> EnabledConflictingTypes { get; } = new ObservableCollection<Type>();
@@ -60,9 +63,26 @@ namespace ProcDumpWrapper
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public event EventHandler<OptionsChangedEventArgs> OptionsChanged;
+
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected virtual void OnOptionsChanged(string newValue)
+        {
+            OptionsChanged?.Invoke(this, new OptionsChangedEventArgs(newValue));
+        }
+    }
+
+    public class OptionsChangedEventArgs : EventArgs
+    {
+        public string Value { get; }
+
+        public OptionsChangedEventArgs(string newValue)
+        {
+            Value = newValue;
         }
     }
 

@@ -11,7 +11,22 @@ namespace ProcDumpWrapper
         public override string Name => "Create Callback Dump";
         public override string Description => "Write a Callback dump file. Include memory defined by the MiniDumpWriteDump callback routine named MiniDumpCallbackRoutine of the specified DLL.";
 
-        public string DllName { get; set; }
+        private string _dllName;
+
+        public string DllName
+        {
+            get => _dllName;
+            set
+            {
+                if (_dllName != value)
+                {
+                    _dllName = value;
+                    OnOptionsChanged(_dllName);
+                }
+            }
+        }
+
+
         public override string GetArguments()
         {
             return $"-md {DllName}";

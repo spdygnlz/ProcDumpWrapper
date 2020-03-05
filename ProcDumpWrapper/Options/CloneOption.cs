@@ -11,12 +11,23 @@ namespace ProcDumpWrapper
         public override string Name => "Dump Using Clone";
         public override string Description => "Dump using a clone. Concurrent limit is optional (default 1, max 5). CAUTION: a high concurrency value may impact system performance.";
 
-        public int ConcurrentLimit { get; set; }
+        private string _concurrentLimit;
+
+        public string ConcurrentLimit
+        {
+            get => _concurrentLimit;
+            set
+            {
+                if (_concurrentLimit != value)
+                {
+                    _concurrentLimit = value;
+                    OnOptionsChanged(_concurrentLimit);
+                }
+            }
+        }
         public override string GetArguments()
         {
             return $"-r {ConcurrentLimit}";
         }
-
-
     }
 }

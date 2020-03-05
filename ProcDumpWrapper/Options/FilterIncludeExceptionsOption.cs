@@ -10,10 +10,29 @@ namespace ProcDumpWrapper
         public override string Description =>
             "Filter the first chance exceptions. Wildcards (*) are supported. To just display the names without dumping, use a blank (\"\") filter.";
 
-        public string Filter { get; set; }
+        private string _filter;
+
+        public string Filter
+        {
+            get => _filter;
+            set
+            {
+                if (_filter != value)
+                {
+                    _filter = value;
+                    OnOptionsChanged(_filter);
+                }
+            }
+        }
+
+        public FilterIncludeExceptionsOption()
+        {
+            Enabled = true;
+        }
+
         public override string GetArguments()
         {
-            return $"-f {Filter}";
+            return $"-f \"{Filter}\"";
         }
     }
 }

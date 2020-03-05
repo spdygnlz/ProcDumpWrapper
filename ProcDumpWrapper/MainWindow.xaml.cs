@@ -1,24 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Collections;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using System.Windows.Controls.Primitives;
+using ProcDumpWrapper.Options;
 
 namespace ProcDumpWrapper
 {
@@ -28,7 +18,35 @@ namespace ProcDumpWrapper
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
         private string _output;
+        private Process p = null;
         public IList<Option> Options { get; set; }
+
+        public Dictionary<Group, IEnumerable<Option>> GroupedOptions { get; set; }
+
+        public bool CanCancel
+        {
+            get
+            {
+                if (p != null && !p.HasExited)
+                {
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+        public string CurrentCommandLine
+        {
+            get
+            {
+                var commandLineArgs = string.Join(" ", Options.Where(o => o.Enabled && o.Available)
+                    .OrderBy(o => o.Order)
+                    .Select(o => o.GetArguments()));
+
+                return $"Procdump.exe {commandLineArgs}";
+            }
+        }
 
         public string Output
         {
@@ -47,13 +65,31 @@ namespace ProcDumpWrapper
             var assembly = typeof(Option).Assembly;
             var types = assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(Option))).OrderBy(t => t.FullName);
             Options = types.Select(t => (Option)Activator.CreateInstance(t)).ToList();
+            var groupTypes = assembly.GetTypes().Where(t => typeof(Group).IsAssignableFrom(t) && t.IsAbstract == false && t.IsInterface == false);
+            GroupedOptions = groupTypes
+                .Select(t => (Group) Activator.CreateInstance(t))
+                .OrderBy(t => t.SortOrder)
+                .ToDictionary(
+                    x => x, 
+                    x=> Options.Where(o => o.GroupType == x.GetType()));
 
             foreach (var option in Options)
             {
                 option.EnabledChanged += Option_EnabledChanged;
+                option.OptionsChanged += OptionsChanged;
+            }
+
+            foreach (var option in Options.Where(o => o.Enabled))
+            {
+                Option_EnabledChanged(option, new EnabledChangedEventArgs(option.Enabled, option.ConflictingTypes));
             }
 
             InitializeComponent();
+        }
+
+        private void OptionsChanged(object sender, OptionsChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(CurrentCommandLine));
         }
 
         private void Option_EnabledChanged(object sender, EnabledChangedEventArgs e)
@@ -72,6 +108,8 @@ namespace ProcDumpWrapper
                     }
                 }
             }
+
+            OnPropertyChanged(nameof(CurrentCommandLine));
         }
 
         private void RunProcDump(object sender, RoutedEventArgs e)
@@ -81,22 +119,49 @@ namespace ProcDumpWrapper
                                                             .OrderBy(o => o.Order)
                                                             .Select(o => o.GetArguments()));
 
+            if (p != null && !p.HasExited)
+            {
+                Output += $"Process is already running.  Stop the current process and try again.{Environment.NewLine}";
+                return;
+            }
+
             Output += $"Full command: 'Procdump.exe {commandLineArgs}'{Environment.NewLine}";
 
-            Process p = new Process();
-            p.StartInfo = new ProcessStartInfo("Procdump.exe")
+            p = new Process
             {
-                Arguments = commandLineArgs,
-                CreateNoWindow = true,
-                RedirectStandardOutput = true,
-                UseShellExecute = false
+                StartInfo = new ProcessStartInfo("Procdump.exe")
+                {
+                    Arguments = commandLineArgs, 
+                    CreateNoWindow = true, 
+                    RedirectStandardOutput = true, 
+                    UseShellExecute = false
+                }
             };
 
+            p.EnableRaisingEvents = true;
             p.OutputDataReceived += P_OutputDataReceived;
-            p.Start();
-            p.BeginOutputReadLine();
-            p.WaitForExit();
-            p.Dispose();
+            p.Exited += ProcessExited;
+            p?.Start();
+            p?.BeginOutputReadLine();
+            OnPropertyChanged(nameof(CanCancel));
+        }
+
+        private void ProcessExited(object sender, EventArgs e)
+        {
+            CleanProcess();
+        }
+
+        private void CleanProcess()
+        {
+            if (p != null)
+            {
+                p.OutputDataReceived -= P_OutputDataReceived;
+                p.Exited -= ProcessExited;
+                p.Dispose();
+                p = null;
+            }
+
+            OnPropertyChanged(nameof(CanCancel));
         }
 
         private void P_OutputDataReceived(object sender, DataReceivedEventArgs e)
@@ -179,6 +244,16 @@ namespace ProcDumpWrapper
         private void ClearOutput(object sender, RoutedEventArgs e)
         {
             Output = string.Empty;
+        }
+
+        private void CancelRunningProcess(object sender, RoutedEventArgs e)
+        {
+            if (!p.HasExited)
+            {
+                p?.Kill();
+                CleanProcess();
+                Output += $"Process has been canceled. {Environment.NewLine}";
+            }
         }
     }
 

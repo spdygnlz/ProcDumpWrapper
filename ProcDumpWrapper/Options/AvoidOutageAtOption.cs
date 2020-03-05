@@ -2,12 +2,26 @@
 
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 
 namespace ProcDumpWrapper
 {
     public class AvoidOutageAtOption :  Option
     {
-        int Timeout { get; set; }
+        private int _timeout;
+
+        public int Timeout
+        {
+            get => _timeout;
+            set
+            {
+                if (_timeout != value)
+                {
+                    _timeout = value;
+                    OnOptionsChanged(_timeout.ToString());
+                }
+            }
+        }
 
         public override int Order => 5;
 

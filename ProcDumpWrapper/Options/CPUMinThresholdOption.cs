@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using ProcDumpWrapper.Options;
 
 namespace ProcDumpWrapper
 {
@@ -10,7 +11,22 @@ namespace ProcDumpWrapper
         public override string Name => "CPU Min Threshold";
         public override string Description => "CPU threshold below which to create a dump of the process.";
 
-        public int CPUThreshold { get; set; }
+        private int _cpuThreshold;
+
+        public int CPUThreshold
+        {
+            get => _cpuThreshold;
+            set
+            {
+                if (_cpuThreshold != value)
+                {
+                    _cpuThreshold = value;
+                    OnOptionsChanged(_cpuThreshold.ToString());
+                }
+            }
+        }
+
+        public override Type GroupType => typeof(ThresholdGroup);
 
         public override string GetArguments()
         {

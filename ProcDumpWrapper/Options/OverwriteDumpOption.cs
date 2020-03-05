@@ -1,5 +1,8 @@
 ﻿
 
+using System;
+using ProcDumpWrapper.Options;
+
 namespace ProcDumpWrapper
 {
     public class OverwriteDumpOption : Option
@@ -11,5 +14,7 @@ namespace ProcDumpWrapper
         {
             return "-o";
         }
+
+        public override Type GroupType => typeof(DumpTypeGroup);
     }
 }
