@@ -141,7 +141,8 @@
             </StackPanel>
             <TextBox Grid.Row="1" Text="{Binding Output}" 
                      local:TextBoxScrollBehavior.ScrollOnTextChanged="True"
-                     VerticalScrollBarVisibility="Auto" />
+                     VerticalScrollBarVisibility="Auto" 
+                     HorizontalScrollBarVisibility="Auto" />
         </Grid>
         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="2">
             <Button Content="Clear" Click="ClearOutput" Width="100" />
